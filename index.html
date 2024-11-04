@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Flags Quiz by Maheshwer_Chowdeykari</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f4f7;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+        }
+
+        .quiz-container {
+            max-width: 90%;
+            width: 600px;
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            margin-bottom: 20px;
+            transition: background-color 1s, border-color 1s;
+        }
+
+        h1 {
+            font-size: 2rem;
+            animation: rgbBlink 1s infinite alternate;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .flag {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            margin: 20px auto;
+            border: 8px solid #333;
+            transition: border-color 1s;
+        }
+
+        .question {
+            font-size: 1.5rem;
+            color: #555;
+            margin: 15px 0;
+            font-style: italic;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .answer-button {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            border: 2px solid black;
+        }
+
+        .feedback-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            font-size: 1.25rem;
+            color: #fff;
+            border-radius: 10px;
+            display: none;
+            animation: messageFade 0.8s ease-in-out;
+        }
+
+        .footer {
+            font-size: 1rem;
+            color: #fff;
+            background-color: #333;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Keyframe Animations */
+        @keyframes rgbBlink {
+            0% { color: rgb(255, 0, 0); }
+            20% { color: rgb(0, 255, 0); }
+            40% { color: rgb(0, 0, 255); }
+            60% { color: rgb(255, 255, 0); }
+            80% { color: rgb(255, 0, 255); }
+            100% { color: rgb(0, 255, 255); }
+        }
+
+        /* Random Animations */
+        @keyframes slideInLeft {
+            0% { transform: translateX(-100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideInRight {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes rotateIn {
+            0% { transform: rotate(-180deg); opacity: 0; }
+            100% { transform: rotate(0); opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes messageFade {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quizContainer">
+        <h1>CREATED, DESIGNED, AND DEVELOPED BY <br> MAHESHWER_CHOWDEYKARI</h1>
+        <img id="flagImage" class="flag" src="" alt="Country Flag">
+        <p id="questionText" class="question">Guess the country of this flag:</p>
+        <div id="answerOptions" class="answer-options"></div>
+        <div id="feedbackBox" class="feedback-box"></div>
+    </div>
+
+    <div class="footer">
+        &copy; ALL RIGHTS RESERVED BY MAHESHWER_CHOWDEYKARI 2024 - 2025.
+    </div>
+
+    <script>
+        const flagsData = [
+            { name: "Japan", flag: "https://flagcdn.com/w320/jp.png" },
+            { name: "Brazil", flag: "https://flagcdn.com/w320/br.png" },
+            { name: "Canada", flag: "https://flagcdn.com/w320/ca.png" },
+            { name: "Germany", flag: "https://flagcdn.com/w320/de.png" },
+            { name: "France", flag: "https://flagcdn.com/w320/fr.png" },
+            { name: "India", flag: "https://flagcdn.com/w320/in.png" },
+            { name: "United States", flag: "https://flagcdn.com/w320/us.png" },
+            { name: "Australia", flag: "https://flagcdn.com/w320/au.png" },
+            { name: "Italy", flag: "https://flagcdn.com/w320/it.png" },
+            { name: "Spain", flag: "https://flagcdn.com/w320/es.png" },
+        ];
+
+        let currentFlagIndex = 0;
+        const questionText = document.getElementById("questionText");
+        const flagImage = document.getElementById("flagImage");
+        const answerOptions = document.getElementById("answerOptions");
+        const feedbackBox = document.getElementById("feedbackBox");
+        const quizContainer = document.getElementById("quizContainer");
+
+        const animations = ['slideInLeft', 'slideInRight', 'fadeIn', 'rotateIn', 'zoomIn'];
+        const backgroundColors = ['#FFC107', '#FF5722', '#4CAF50', '#2196F3', '#673AB7'];
+        const borderColors = ['#FF9800', '#FF5722', '#4CAF50', '#3F51B5', '#E91E63'];
+
+        function initQuiz() {
+            currentFlagIndex = 0;
+            showFlagQuestion();
+        }
+
+        function showFlagQuestion() {
+            const currentFlag = flagsData[currentFlagIndex];
+            flagImage.src = currentFlag.flag;
+            questionText.textContent = `Guess the country of this flag:`;
+            answerOptions.innerHTML = "";
+            applyRandomAnimation(flagImage);
+            changeColors();
+
+            // Select 4 random options including the correct answer
+            const options = [...flagsData];
+            const selectedOptions = new Set();
+            selectedOptions.add(currentFlag.name);
+            while (selectedOptions.size < 4) {
+                const randomOption = options[Math.floor(Math.random() * options.length)].name;
+                selectedOptions.add(randomOption);
+            }
+
+            // Create buttons for selected options
+            Array.from(selectedOptions).forEach((option) => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.className = "answer-button";
+                button.onclick = () => checkAnswer(option === currentFlag.name);
+                applyRandomAnimation(button);
+                answerOptions.appendChild(button);
+            });
+        }
+
+        function checkAnswer(isCorrect) {
+            const message = isCorrect ? "Wow, correct answer!" : "Sorry, wrong answer.";
+            displayFeedback(message, isCorrect ? "#4CAF50" : "#FF5733");
+            speakText(message);
+
+            currentFlagIndex = (currentFlagIndex + 1) % flagsData.length;
+            setTimeout(() => showFlagQuestion(), 2000);
+        }
+
+        function displayFeedback(message, color) {
+            feedbackBox.textContent = message;
+            feedbackBox.style.backgroundColor = color;
+            feedbackBox.style.display = "block";
+            setTimeout(() => feedbackBox.style.display = "none", 1500);
+        }
+
+        function speakText(text) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            synth.speak(utterance);
+        }
+
+        function applyRandomAnimation(element) {
+            const animation = animations[Math.floor(Math.random() * animations.length)];
+            element.style.animation = `${animation} 1.5s ease`;
+        }
+
+        function changeColors() {
+            const randomBackgroundColor = backgroundColors[Math.floor(Math.random() * backgroundColors.length)];
+            const randomBorderColor = borderColors[Math.floor(Math.random() * borderColors.length)];
+            quizContainer.style.backgroundColor = randomBackgroundColor;
+            quizContainer.style.borderColor = randomBorderColor;
+        }
+
+        initQuiz();
+        setInterval(changeColors, 1000); // Change colors every second
+    </script>
+</body>
+</html>
